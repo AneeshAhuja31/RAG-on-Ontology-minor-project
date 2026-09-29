@@ -116,3 +116,13 @@ def embed_query(query: str) -> list[float]:
     embedding = _embed_one(EMBEDDING_MODEL, query, "RETRIEVAL_QUERY")
     _cache.save()
     return embedding
+
+
+def is_embedding_cached(text: str, task_type: str = "RETRIEVAL_QUERY") -> bool:
+    """True if the embedding for this EXACT text is already in the disk cache.
+
+    The cache key hashes (version, model, task_type, text), so a different
+    query text can never read another query's embedding - a miss here always
+    means a fresh API call.
+    """
+    return _cache.get(_cache_key(EMBEDDING_MODEL, task_type, text)) is not None

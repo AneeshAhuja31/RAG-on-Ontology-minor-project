@@ -6,11 +6,20 @@ provided differs (Pipeline 3 appends ontology reasoning context).
 
 from __future__ import annotations
 
+import logging
+
 from google import genai
 from google.genai import types
 
 from src.config import GOOGLE_API_KEY, GENERATOR_MODEL, GENERATOR_TEMPERATURE
 from src.rate_limiter import acquire_generation
+
+# Silence the google-genai SDK's non-actionable chatter (e.g. its one-time
+# "Direct use of automatic function calling (AFC) in Models.generate_content
+# is not recommended..." warning) that would otherwise pollute terminal
+# output. Real errors are still shown.
+for _name in ("google_genai", "google.genai"):
+    logging.getLogger(_name).setLevel(logging.ERROR)
 
 
 def _get_client() -> genai.Client:

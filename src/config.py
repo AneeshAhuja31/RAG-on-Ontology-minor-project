@@ -31,28 +31,25 @@ REASONING_LOGS_DIR = RESULTS_DIR / "reasoning_logs"
 # API Keys
 # ──────────────────────────────────────────────
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
 # ──────────────────────────────────────────────
 # Model Configuration
 # ──────────────────────────────────────────────
 EMBEDDING_MODEL = "gemini-embedding-2"
-# Free-tier generation quota is ~20 req/day per model on the newer Flash
-# models (gemini-3.5-flash, 3.6-flash, 3.5-flash-lite), which is far too
-# small for a 66-query x 6-pipeline answer evaluation (~800 calls).
-# gemini-3.1-flash-lite has a ~1000 req/day free budget, so both generation
-# and judging use it (the judge rubric is model-independent and the concept
-# coverage metric is objective, so this preserves the controlled comparison).
-GENERATOR_MODEL = "gemini-3.1-flash-lite"
+# Generation and judging both use gemini-3.8-flash (single model family,
+# temperature 0). The judge applies a separate blinded rubric and the primary
+# answer metric (concept coverage) is objective (no LLM involved).
+# NOTE: newest Flash models have small free-tier quotas (~20 req/day) — the
+# eval runners are resumable per-query so a quota interruption never loses
+# progress.
+GENERATOR_MODEL = "gemini-3.8-flash"
 GENERATOR_TEMPERATURE = 0.0
 
 # LLM Judge
-# Uses the same model as the generator (gemini-3.1-flash-lite) because it is
-# the only free-tier model with a large enough daily quota; the judge applies
-# a separate rubric and is blinded to pipeline identity, and the primary
-# answer metric (concept coverage) is objective (no LLM involved).
-LLM_JUDGE_MODEL = "gemini-3.1-flash-lite"
+# Same model as the generator; independence comes from the blinded rubric
+# (pipeline identity is never shown to the judge) and from the objective
+# concept-coverage metric computed in parallel.
+LLM_JUDGE_MODEL = "gemini-3.8-flash"
 
 # ──────────────────────────────────────────────
 # Retrieval Configuration
